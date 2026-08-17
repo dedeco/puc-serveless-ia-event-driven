@@ -1,0 +1,1 @@
+# Aula 4: Observabilidade e Performance\n\n## Foco\n- Cloud Logging, Monitoring e Trace\n- Otimização de cold start\n- Custos e escalabilidade\n\n## Checkpoint 4\nInstrumentar o pipeline e propor otimizações.

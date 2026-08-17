@@ -1,0 +1,1 @@
+# Aula 3: Orquestração e Composição de Serviços\n\n## Foco\n- Cloud Workflows\n- Orquestração vs. Coreografia\n- Idempotência e tratamento de falhas\n\n## Checkpoint 3\nImplementar um pipeline de dados usando Cloud Workflows.

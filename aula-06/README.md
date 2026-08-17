@@ -1,0 +1,1 @@
+# Aula 6: Serverless e IA (Projeto Final)\n\n## Foco\n- Integração com Vertex AI\n- Function calling e orquestração de agentes\n\n## Projeto Final\nConsolidar os checkpoints em uma arquitetura event-driven completa integrada com IA.

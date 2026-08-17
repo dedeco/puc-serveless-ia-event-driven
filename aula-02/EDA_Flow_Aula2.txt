@@ -1,0 +1,48 @@
+LABORATÓRIO AULA 2: ARQUITETURA EVENT-DRIVEN (COREOGRAFIA)
+
+FLUXO DE INTERAÇÃO DOS COMPONENTES
+==================================
+
+[ USUÁRIO / CLI ]
+      |
+      | (1) Publica mensagem 'OrderCreated'
+      v
++-----------------------+
+|  Pub/Sub: TOPIC orders|
++-----------------------+
+      |
+      |----(Fan-out)----------------+----------------------------+
+      |                             |                            |
+      v                             v                            v
+[ INVENTORY SERVICE ]      [ READ MODEL SIMULATOR ]      [ PAYMENT SERVICE ]
+      |                             |                            |
+      | (2) Subtrai estoque         | (3) Cria resumo            | (4) Simula Gateway
+      v                             v                            |     (Aguardar 2s)
++-----------------------+     +-----------------------+          |
+| FIRESTORE: products   |     | FIRESTORE: orders_sum |          |
++-----------------------+     +-----------------------+          |
+                                    ^                            |
+                                    |                            | (5) Publica
+                                    |                            |     'PaymentConfirmed'
+                                    |                            v
+                                    |                  +-----------------------+
+                                    |                  | Pub/Sub: TOPIC payment|
+                                    |                  +-----------------------+
+                                    |                            |
+                                    |                            | (6) Trigger
+                                    |                            v
+                                    |                   [ SHIPPING SERVICE ]
+                                    |                            |
+                                    +----------------------------| (7) Inicia Logística
+                                                                 v
+                                                       +-----------------------+
+                                                       | Transportadora / Logs |
+                                                       +-----------------------+
+
+LEGENDA DE CONCEITOS:
+--------------------
+- FAN-OUT: Um único evento (orders) disparando 3 serviços independentes.
+- DESACOPLAMENTO: O Payment Service não sabe que o Inventory Service existe.
+- COREOGRAFIA: Os serviços decidem o que fazer baseados em fatos (eventos), sem um orquestrador central.
+- CQRS/READ MODEL: O 'Read Model Simulator' constrói uma visão amigável para o usuário no Firestore.
+- EVENT CHAINING: O Shipping Service depende do evento gerado pelo Payment Service.
