@@ -1,41 +1,41 @@
 # Serverless Computing e Arquiteturas Event-Driven
-## Pos-Graduacao: DevOps e Cloud Platform Engineering com IA
-### Prof. Andre de Sousa Araujo | PUC Minas
+## Pós-Graduação: DevOps e Cloud Platform Engineering com IA
+### Prof. André de Sousa Araújo | PUC Minas
 
-Este repositorio contem o material pratico e os checkpoints da disciplina de Serverless Computing e Arquiteturas Event-Driven. O objetivo e capacitar o aluno a projetar, implementar e operar arquiteturas escalaveis no Google Cloud Platform (GCP).
+Repositório oficial da disciplina de Serverless Computing e Arquiteturas Event-Driven. Este material foca na construção de sistemas escaláveis utilizando Google Cloud Platform, infraestrutura como código com Terraform e integração de arquiteturas orientadas a eventos com agentes de Inteligência Artificial.
 
-## Descricao do Curso
-A disciplina aborda a evolucao dos modelos de infraestrutura, desde servidores fisicos ate FaaS (Function as a Service), explorando padroes de mensageria, orquestracao de workflows e a integracao de agentes de IA em arquiteturas orientadas a eventos.
+## Descrição do Curso
+A disciplina aborda a evolução dos modelos de infraestrutura, desde servidores físicos até FaaS (Function as a Service), explorando padrões de mensageria, orquestração de workflows e a integração de agentes de IA em arquiteturas orientadas a eventos.
 
 ## Estrutura de Checkpoints
-O projeto e construido de forma incremental. Cada pasta representa uma evolucao do sistema:
+O projeto é construído de forma incremental. Cada pasta representa uma evolução do sistema:
 
-- Aula 1: Fundamentos de Serverless e deploy de funcoes HTTP.
-- Aula 2: Introducao a Arquiteturas Event-Driven com Pub/Sub e Eventarc.
-- Aula 3: Orquestracao de processos complexos com Cloud Workflows.
-- Aula 4: Observabilidade, tracing e otimizacao de performance (Cold Start).
-- Aula 5: Seguranca, IAM e automacao de deploy com pipelines de CI/CD.
-- Aula 6: Projeto Final - Integracao com Vertex AI e Agentes Autonomos.
+- Aula 1: Fundamentos de Serverless e deploy de funções HTTP.
+- Aula 2: Introdução a Arquiteturas Event-Driven com Pub/Sub e Eventarc.
+- Aula 3: Orquestração de processos complexos com Cloud Workflows.
+- Aula 4: Observabilidade, tracing e otimização de performance (Cold Start).
+- Aula 5: Segurança, IAM e automação de deploy com pipelines de CI/CD.
+- Aula 6: Projeto Final - Integração com Vertex AI e Agentes Autônomos.
 
-## Instrucoes para Alunos
+## Instruções para Alunos
 
-### 1. Clonando o Repositorio
+### 1. Clonando o Repositório
 Execute o comando abaixo para copiar os materiais:
 git clone https://github.com/dedeco/puc-serveless-ia-event-driven.git
 
-### 2. Configuracao do Terraform
-Os laboratorios utilizam Terraform para provisionamento. Para evitar conflitos de estado entre alunos, cada um deve configurar seu proprio backend remoto:
+### 2. Configuração do Terraform
+Os laboratórios utilizam Terraform para provisionamento. Para evitar conflitos de estado entre alunos, cada um deve configurar seu próprio backend remoto:
 
 - Crie um bucket no seu Cloud Storage para armazenar o estado.
 - Em cada pasta de aula, edite o bloco 'backend "gcs"' no arquivo main.tf com o nome do seu bucket.
 
-### 3. Pre-requisitos Tecnicos
+### 3. Pré-requisitos Técnicos
 - Google Cloud SDK (gcloud CLI) devidamente autenticado.
-- Terraform instalado (versao 1.5 ou superior).
-- Python 3.10 ou superior para o desenvolvimento das funcoes.
+- Terraform instalado (versão 1.5 ou superior).
+- Python 3.10 ou superior para o desenvolvimento das funções.
 
-## Contribuicao e Duvidas
-Utilize a aba 'Issues' deste repositorio para reportar bugs ou tirar duvidas tecnicas sobre os laboratorios.
+## Contribuição e Dúvidas
+Utilize a aba 'Issues' deste repositório para reportar bugs ou tirar dúvidas técnicas sobre os laboratórios.
 
 ---
-(c) 2026 PUC Minas - Educacao Continuada
+(c) 2026 PUC Minas - Educação Continuada
