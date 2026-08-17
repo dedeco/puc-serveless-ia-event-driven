@@ -2,52 +2,40 @@
 ## Pos-Graduacao: DevOps e Cloud Platform Engineering com IA
 ### Prof. Andre de Sousa Araujo | PUC Minas
 
-Repositorio oficial da disciplina de Serverless Computing e Arquiteturas Event-Driven. Este material foca na construcao de sistemas escalaveis utilizando Google Cloud Platform, infraestrutura como codigo com Terraform e integracao de arquiteturas orientadas a eventos com agentes de Inteligencia Artificial.
+Este repositorio contem o material pratico e os checkpoints da disciplina de Serverless Computing e Arquiteturas Event-Driven. O objetivo e capacitar o aluno a projetar, implementar e operar arquiteturas escalaveis no Google Cloud Platform (GCP).
 
-Descricao: Repositorio com os materiais praticos, checkpoints e o projeto integrador da disciplina. Inclui infraestrutura como codigo (Terraform), pipelines de eventos no GCP e integracao pratica com Vertex AI.
+## Descricao do Curso
+A disciplina aborda a evolucao dos modelos de infraestrutura, desde servidores fisicos ate FaaS (Function as a Service), explorando padroes de mensageria, orquestracao de workflows e a integracao de agentes de IA em arquiteturas orientadas a eventos.
 
-Tags: serverless, gcp, event-driven-architecture, terraform, python, vertex-ai, puc-minas, devops, cloud-native.
+## Estrutura de Checkpoints
+O projeto e construido de forma incremental. Cada pasta representa uma evolucao do sistema:
 
----
+- Aula 1: Fundamentos de Serverless e deploy de funcoes HTTP.
+- Aula 2: Introducao a Arquiteturas Event-Driven com Pub/Sub e Eventarc.
+- Aula 3: Orquestracao de processos complexos com Cloud Workflows.
+- Aula 4: Observabilidade, tracing e otimizacao de performance (Cold Start).
+- Aula 5: Seguranca, IAM e automacao de deploy com pipelines de CI/CD.
+- Aula 6: Projeto Final - Integracao com Vertex AI e Agentes Autonomos.
 
-## Estrutura da Disciplina
+## Instrucoes para Alunos
 
-O curso e estruturado de forma incremental. Cada aula evolui o projeto anterior, adicionando novas capacidades de arquitetura, observabilidade, seguranca e IA.
+### 1. Clonando o Repositorio
+Execute o comando abaixo para copiar os materiais:
+git clone https://github.com/dedeco/puc-serveless-ia-event-driven.git
 
-### Aula 1: Fundamentos de Serverless (./aula-01)
-- Foco: Evolucao da infraestrutura (Bare Metal -> VM -> Container -> Serverless).
-- Checkpoint 1: Deploy de funcao HTTP simples (Cloud Run functions).
+### 2. Configuracao do Terraform
+Os laboratorios utilizam Terraform para provisionamento. Para evitar conflitos de estado entre alunos, cada um deve configurar seu proprio backend remoto:
 
-### Aula 2: Arquiteturas Event-Driven (./aula-02)
-- Foco: Pub/Sub, Eventarc e padroes Publish/Subscribe.
-- Checkpoint 2: Transicao de gatilho HTTP para eventos Pub/Sub.
+- Crie um bucket no seu Cloud Storage para armazenar o estado.
+- Em cada pasta de aula, edite o bloco 'backend "gcs"' no arquivo main.tf com o nome do seu bucket.
 
-### Aula 3: Orquestracao e Composicao (./aula-03)
-- Foco: Cloud Workflows, Orquestracao vs. Coreografia, Idempotencia.
-- Checkpoint 3: Criacao de pipelines de dados orquestrados.
+### 3. Pre-requisitos Tecnicos
+- Google Cloud SDK (gcloud CLI) devidamente autenticado.
+- Terraform instalado (versao 1.5 ou superior).
+- Python 3.10 ou superior para o desenvolvimento das funcoes.
 
-### Aula 4: Observabilidade e Performance (./aula-04)
-- Foco: Cloud Logging, Monitoring e Trace. Otimizacao de Cold Starts.
-- Checkpoint 4: Instrumentacao e analise de metricas do pipeline.
-
-### Aula 5: Seguranca e CI/CD (./aula-05)
-- Foco: IAM, Secret Manager, Cloud Build e Cloud Deploy.
-- Checkpoint 5: Configuracao de pipeline de CI/CD automatizado.
-
-### Aula 6: Serverless e IA - Projeto Final (./aula-06)
-- Foco: Integracao com Vertex AI e Agentes Autonomos.
-- Projeto Final: Arquitetura completa e integrada com IA.
-
----
-
-## Pre-requisitos
-- Conta no Google Cloud Platform com faturamento ativo.
-- Google Cloud SDK (gcloud CLI) instalado.
-- Python 3.10+
-- Terraform 1.5+
-
-## Atividade Extra (Opcional)
-- Containerizacao com Docker e deploy no Google Kubernetes Engine (GKE) como contraponto ao modelo Serverless.
+## Contribuicao e Duvidas
+Utilize a aba 'Issues' deste repositorio para reportar bugs ou tirar duvidas tecnicas sobre os laboratorios.
 
 ---
 (c) 2026 PUC Minas - Educacao Continuada
