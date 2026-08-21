@@ -1,0 +1,32 @@
+main:
+  params: [input]
+  steps:
+    - reservar:
+        call: http.post
+        args:
+          url: '${input.url + "/reserve"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+    - cobrar:
+        call: http.post
+        args:
+          url: '${input.url + "/charge"}'
+          auth:
+            type: OIDC
+          headers:
+            Idempotency-Key: '${input.order_id}'
+          body:
+            order_id: '${input.order_id}'
+    - enviar:
+        call: http.post
+        args:
+          url: '${input.url + "/ship"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+        result: res
+    - finalizar:
+        return: ${res.body}

@@ -1,0 +1,37 @@
+main:
+  params: [input]
+  steps:
+    - reservar:
+        call: http.post
+        args:
+          url: '${input.url + "/reserve"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+    - cobrar:
+        try:
+          call: http.post
+          args:
+            url: '${input.url + "/charge"}'
+            auth:
+              type: OIDC
+            body:
+              order_id: '${input.order_id}'
+        retry:
+          predicate: '${http.default_retry_predicate}'
+          max_retries: 5
+          backoff:
+            initial_delay: 1
+            multiplier: 2
+    - enviar:
+        call: http.post
+        args:
+          url: '${input.url + "/ship"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+        result: res
+    - finalizar:
+        return: ${res.body}

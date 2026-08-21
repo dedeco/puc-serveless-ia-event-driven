@@ -1,0 +1,266 @@
+Reservar estoque
+Cobrar pagamento
+Enviar pedido
+Pedido concluído
+DEVOPS & CLOUD PLATFORM ENGINEERING COM IA
+Orquestração e
+Composição de Serviços
+Aula 3 — Cloud Workflows, panorama de orquestradores e tratamento de falhas
+20 de agosto de 2026Prof. André de Sousa AraújoPUC Minas — Diretoria de Educação Continuada
+1
+
+Recapitulando a Aula 2
+O que já temos antes de orquestrar tudo isso
+Eventos & Pub/Sub
+Fato imutável, desacoplamento, tópicos e assinaturas no GCP
+Coreografia vs. Orquestração
+Vimos os dois modelos — hoje aprofundamos orquestração na prática
+Event Sourcing & CQRS
+Estado como log de eventos; separação entre comando e consulta
+Checkpoint 2
+Função evoluída de gatilho HTTP para gatilho Pub/Sub
+Hoje: tirar a orquestração do papel — Cloud Workflows de verdade, com retry e dead-letter — rumo ao Checkpoint 3.
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+2
+
+Roteiro da aula
+De Cloud Workflows até o pipeline completo do Checkpoint 3
+01
+Cloud Workflows
+O que é e quando usar
+02
+Orquestração além do GCP
+Outras nuvens e opções open source
+03
+Sintaxe do Workflows
+steps, call, args, result
+04
+Idempotência na prática
+Aplicada a cada passo do pipeline
+05
+Tratamento de falhas
+Retries e backoff exponencial
+06
+Dead-letter
+Quando o passo falha de vez
+07
+Checkpoint 3 (prática)
+Pipeline completo do Sistema de Pedidos
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+3
+
+Cloud Workflows
+O que é e quando usar — a orquestração gerenciada do GCP
+1
+100% serverless
+Sem infraestrutura de execução para gerenciar — você só declara o fluxo.
+2
+Conecta qualquer API HTTP
+Cloud Run, Cloud Functions, Pub/Sub, BigQuery, ou qualquer endpoint externo.
+3
+Declarativo em YAML
+O fluxo é dados, não código — fácil de ler, versionar e revisar.
+4
+Totalmente auditável
+Cada execução fica registrada, com o estado de cada passo, para depuração.
+1  reservar_estoque
+2  cobrar_pagamento
+3  enviar_pedido
+Workflows chama cada passo, na ordem, e espera a resposta antes de seguir
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+4
+
+Orquestração além do GCP
+Panorama: gerenciados nas outras nuvens e opções open source
+GERENCIADOS
+GCP Cloud Workflows
+Serverless, YAML, integração nativa com serviços GCP.
+melhor para: quem já vive no GCP
+AWS Step Functions
+State machine (JSON/ASL); Standard (até 1 ano) ou Express (alto volume).
+melhor para: pipelines auditáveis na AWS
+Azure Logic Apps
+Trigger-action, +1400 conectores prontos, designer visual low-code.
+melhor para: integração B2B e SaaS
+OPEN SOURCE
+Apache Airflow
+DAGs em Python; referência em ETL e agendamento em lote.
+melhor para: pipelines de dados
+Temporal
+Workflow como código, durável e determinístico; Sagas com compensação.
+melhor para: lógica de negócio crítica
+Argo Workflows
+Nativo Kubernetes — cada passo roda como pod.
+melhor para: CI/CD e pipelines de ML
+2026: o debate deixou de ser "qual é melhor" — times combinam Temporal (lógica de negócio), Airflow (dados) e Argo (containers) no mesmo sistema, cada um na sua lacuna arquitetural.
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+5
+
+Sintaxe do Workflows
+O pipeline do Sistema de Pedidos, do início ao fim
+1
+params
+Os dados de entrada da execução — aqui, o pedido.
+2
+steps
+Lista sequencial; cada passo roda só depois que o anterior termina.
+3
+${...}
+Sintaxe de expressão — referencia dados do params ou de passos anteriores.
+4
+result
+Nome da variável onde a resposta do passo fica disponível.
+main:
+  params: [order]
+  steps:
+    - reservar_estoque:
+        call: http.post
+        args:
+          url: "https://inventory.../reserve"
+          body: {order_id: ${order.id}}
+        result: estoque_result
+    - cobrar_pagamento:
+        call: http.post
+        args:
+          url: "https://payment.../charge"
+          body: {order_id: ${order.id}, total: ${order.total}}
+        result: pagamento_result
+    - enviar_pedido:
+        call: http.post
+        args: {url: "https://shipping.../ship"}
+        result: envio_result
+    - retornar:
+        return: ${envio_result}
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+6
+
+Idempotência na prática
+Cada passo do pipeline precisa poder rodar mais de uma vez sem efeito duplicado
+1
+Por que isso importa aqui
+Um passo pode falhar depois de já ter tido efeito — e o Workflows vai tentar de novo.
+2
+O risco real
+Sem chave de idempotência, um retry de "cobrar_pagamento" pode cobrar o cliente duas vezes.
+3
+A solução
+Enviar uma Idempotency-Key estável — o serviço de destino reconhece e ignora repetições.
+4
+Quem garante isso
+O serviço chamado (Cloud Run function), não o Workflows — ele só faz retry.
+- cobrar_pagamento:
+    call: http.post
+    args:
+      url: "https://payment.../charge"
+      headers:
+        Idempotency-Key: 
+          ${order.id + "-payment"}
+      body: {order_id: ${order.id}}
+Mesma lição da Aula 2: Pub/Sub entrega at-least-once, Workflows faz retry automático — os dois motivos convergem para a mesma regra: todo handler que pode ser chamado de novo precisa ser idempotente.
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+7
+
+Tratamento de falhas: retries
+Nem toda falha é definitiva — o Workflows tenta de novo antes de desistir
+1
+predicate
+Decide quais erros valem retry — timeouts e 5xx sim, 4xx normalmente não.
+2
+max_retries
+Limite de tentativas, para não entrar em loop indefinido.
+3
+backoff exponencial
+Cada tentativa espera mais que a anterior — evita sobrecarregar um serviço já instável.
+4
+multiplier
+Fator de crescimento do intervalo entre tentativas.
+- cobrar_pagamento:
+    try:
+      call: http.post
+      args: {url: "https://payment.../charge"}
+    retry:
+      predicate: ${http.default_retry_predicate}
+      max_retries: 5
+      backoff:
+        initial_delay: 2
+        max_delay: 60
+        multiplier: 2
+Sequência de espera aqui: 2s → 4s → 8s → 16s → 32s (respeitando o teto de 60s) — 5 tentativas antes de considerar falha definitiva.
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+8
+
+Dead-letter
+Quando o passo falha de vez — para onde vai esse pedido?
+1
+O que é
+Um destino separado para execuções que esgotaram os retries e falharam definitivamente.
+2
+Por que não deixar travado
+Um pedido problemático não pode travar a fila inteira de pedidos.
+3
+O que fazer com ele
+Investigar manualmente, alertar o time, ou reprocessar depois de corrigir a causa.
+4
+Onde registrar
+Um tópico Pub/Sub dedicado ("orders-dlq") — o mesmo mecanismo que já conhecemos.
+- cobrar_pagamento:
+    try:
+      call: http.post
+      args: {url: "https://payment.../charge"}
+    retry: ${http.default_retry}
+    except:
+      as: e
+      steps:
+        - publicar_dlq:
+            call: 
+              googleapis.pubsub.v1.topics.publish
+            args:
+              topic: "orders-dlq"
+              body:
+                messages: [{data: ${e}}]
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+9
+
+Prática · Checkpoint 3
+Orquestrando o pipeline completo do Sistema de Pedidos
+1
+Escrever o workflow
+main.yaml com os 3 passos do pipeline (slide 6): reservar → cobrar → enviar
+2
+Adicionar idempotência
+Idempotency-Key em cada chamada HTTP que tem efeito colateral
+3
+Adicionar retry e dead-letter
+nos passos críticos, como vimos nos slides 8 e 9
+4
+Deploy
+gcloud workflows deploy pedidos --source=main.yaml
+5
+Executar
+gcloud workflows run pedidos --data='{"order": {...}}'
+O que verificar no Console após a execução
+•  O histórico de execução mostra o estado de cada passo (sucesso, retry, falha)•  Force uma falha proposital em "cobrar_pagamento" e observe o retry acontecer•  Confira se a mensagem chegou no tópico "orders-dlq" quando os retries se esgotam
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+10
+
+Próxima aula
+Aula 4 — Observabilidade
+e Performance
+27/08/2026
+Cloud Logging
+Cloud Monitoring
+Cloud Trace
+Cold Start
+Checkpoint 4:  instrumentar o pipeline construído nas aulas anteriores com logging e métricas, e propor otimizações de cold start e custo.
+Orquestração e Composição de Serviços
+Aula 3 · 20/08/2026
+11

@@ -1,0 +1,51 @@
+main:
+  params: [input]
+  steps:
+    - init:
+        assign:
+          - project_id: '${sys.get_env("GOOGLE_CLOUD_PROJECT_ID")}'
+    - reservar:
+        call: http.post
+        args:
+          url: '${input.url + "/reserve"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+    - cobrar:
+        try:
+          call: http.post
+          args:
+            url: '${input.url + "/charge"}'
+            auth:
+              type: OIDC
+            body:
+              order_id: '${input.order_id}'
+        retry:
+          predicate: '${http.default_retry_predicate}'
+          max_retries: 2
+        except:
+          as: e
+          steps:
+            - dlq:
+                call: googleapis.pubsub.v1.projects.topics.publish
+                args:
+                  topic: ${"projects/" + project_id + "/topics/orders-dlq"}
+                  body:
+                    messages:
+                      - data: "RkFMSEEgTk8gUEFHQU1FTlRP" # "FALHA NO PAGAMENTO" em base64
+                        attributes:
+                          order_id: '${input.order_id}'
+            - raise_error:
+                raise: ${e}
+    - enviar:
+        call: http.post
+        args:
+          url: '${input.url + "/ship"}'
+          auth:
+            type: OIDC
+          body:
+            order_id: '${input.order_id}'
+        result: res
+    - finalizar:
+        return: ${res.body}
