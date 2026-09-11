@@ -1,0 +1,32 @@
+id: 4bf0b9fa-05c5-4e57-a6fd-859642672051
+name: push-to-main
+repositoryEventConfig:
+  push:
+    branch: ^main$
+  repository: projects/andresousa-puc/locations/africa-south1/connections/aula-05/repositories/dedeco-calculator-service
+  repositoryType: GITHUB
+serviceAccount: projects/andresousa-puc/serviceAccounts/575401317367-compute@developer.gserviceaccount.com
+build:
+  steps:
+    - name: 'python:3.11-slim'
+      entrypoint: 'bash'
+      args:
+        - '-c'
+        - 'pip install -r requirements.txt && python -m unittest test_main.py'
+    - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+      entrypoint: 'gcloud'
+      args:
+        - 'functions'
+        - 'deploy'
+        - 'calculator-service-aula5'
+        - '--gen2'
+        - '--runtime=python311'
+        - '--trigger-http'
+        - '--no-allow-unauthenticated'
+        - '--entry-point=calculate'
+        - '--region=us-central1'
+        - '--source=.'
+        - '--service-account=calculator-service-sa@andresousa-puc.iam.gserviceaccount.com'
+        - '--set-secrets=CALCULATOR_SECRET=calculator-secret:latest'
+  options:
+    logging: CLOUD_LOGGING_ONLY

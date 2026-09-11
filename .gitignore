@@ -25,3 +25,6 @@ dist/
 # GCP
 auth.json
 secrets.txt
+
+# Archives
+*.zip
