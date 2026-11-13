@@ -8,7 +8,7 @@
 
 ---
 
-## 🎯 Objetivo da Atividade
+## Objetivo da Atividade
 
 Evoluir a **Plataforma Serverless de Triagem Inteligente de Incidentes DevOps** (vista na `aula-06/lab/step-04-full`), integrando os conceitos essenciais trabalhados nos 6 módulos da disciplina:
 1. **Arquiteturas Event-Driven, Idempotência e Resiliência (DLQ)** (Aulas 01, 02 e 03)
@@ -18,21 +18,21 @@ Evoluir a **Plataforma Serverless de Triagem Inteligente de Incidentes DevOps** 
 
 ---
 
-## 🛠️ O Que Você Deve Implementar (4 Etapas)
+## O Que Você Deve Implementar (4 Etapas)
 
 Os arquivos desta pasta (`exame-especial/`) já contêm o código-base do `step-04-full` com marcações `# TODO` indicando exatamente onde atuar.
 
 ### Etapa 1 — Arquitetura Event-Driven, Idempotência e DLQ (30 pontos)
 1. **Infraestrutura como Código (`main.tf`):**
    - Adicione um tópico Pub/Sub de **Dead-Letter Queue (DLQ)** chamado `build-failures-dlq`.
-   - Crie uma assinatura (`google_pubsub_subscription`) ou configure a política de `dead_letter_policy` (com `max_delivery_attempts = 5`) associada ao tópico `build-failures` apontando para a DLQ.
+   - Crie uma assinatura (`google_pubsub_subscription`) com bloco `dead_letter_policy` (e `max_delivery_attempts = 5`) associada ao tópico `build-failures` apontando para a DLQ.
 2. **Controle de Idempotência no Consumidor (`src/main.py`):**
    - Antes de iniciar o loop ReAct e invocar o modelo Gemini, consulte o **Firestore** (coleção `build_triages`, documento `build_id`).
    - Se o documento já existir e estiver com `status == "TRIAGED"`, emita um log estruturado informando que o evento duplicado foi ignorado por idempotência e retorne imediatamente sem chamar a Vertex AI.
 
 ### Etapa 2 — Evolução do Agente de IA com Function Calling (25 pontos)
 1. **Nova Ferramenta (`src/main.py`):**
-   - Além de `get_build_logs` e `trigger_pipeline_retry`, declare uma **3ª ferramenta** usando `FunctionDeclaration`: `notify_oncall_team` (ou `open_incident_ticket`), recebendo `build_id` (`string`), `severity` (`string`) e `error_summary` (`string`).
+   - Além de `get_build_logs` e `trigger_pipeline_retry`, declare uma **3ª ferramenta** usando `FunctionDeclaration`: `notify_oncall_team`, recebendo `build_id` (`string`), `severity` (`string`) e `error_summary` (`string`).
    - Registre a nova declaração dentro de `devops_tools = Tool(function_declarations=[...])`.
    - Implemente a função local `local_notify_oncall_team(build_id: str, severity: str, error_summary: str) -> str` e conecte-a no despacho (`if/elif`) dentro do loop ReAct e no `system_instruction`.
 2. **Novo Cenário de Teste (`src/main.py`):**
@@ -50,7 +50,7 @@ Os arquivos desta pasta (`exame-especial/`) já contêm o código-base do `step-
 
 ### Etapa 4 — Observabilidade, Cold Start e Relatório Técnico (20 pontos)
 1. **Logs Estruturados (`src/main.py`):**
-   - Implemente a função auxiliar `log_structured(severity, message, build_id=None, **kwargs)` para imprimir JSON estruturado em linha única (`json.dumps(...)`), usando-a nos pontos principais do agente.
+   - Utilize a função auxiliar `log_structured(severity, message, build_id=None, **kwargs)` para imprimir JSON estruturado em linha única (`json.dumps(...)`) nos pontos principais do agente.
 2. **Otimização de Cold Start (`main.tf` e `src/main.py`):**
    - Ajuste o `service_config` no `main.tf` e documente no relatório `RELATORIO_EXAME.md` as práticas adotadas para reduzir o Cold Start e limitar custos.
 3. **Preenchimento do `RELATORIO_EXAME.md`:**
@@ -63,7 +63,7 @@ Os arquivos desta pasta (`exame-especial/`) já contêm o código-base do `step-
 
 ---
 
-## 📦 Como Entregar no Canvas
+## Como Entregar no Canvas
 
 Envie pela tarefa do Canvas **em até 7 dias corridos**:
 - Um arquivo `.zip` contendo a pasta `exame-especial/` completa com todas as suas alterações **OU** o link para o seu repositório Git público contendo a resolução.
