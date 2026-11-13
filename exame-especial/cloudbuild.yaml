@@ -1,0 +1,26 @@
+steps:
+  # Step 1: Executar os testes unitários automatizados
+  - name: 'python:3.12-slim'
+    dir: 'exame-especial'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'pip install -r src/requirements.txt && python -m unittest test_main.py -v'
+
+  # ==========================================================================
+  # TODO (Etapa 3 - CI/CD):
+  # Adicione o Step 2 utilizando a imagem 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  # para realizar o deploy da Cloud Function Gen 2 `triage-agent-event-driven`
+  # com:
+  # - `--gen2`
+  # - `--runtime=python312`
+  # - `--trigger-topic=build-failures`
+  # - `--entry-point=triage_agent_event_driven`
+  # - `--region=us-central1`
+  # - `--source=exame-especial/src`
+  # - `--service-account=triage-agent-event-sa@$PROJECT_ID.iam.gserviceaccount.com`
+  # - `--set-secrets=ONCALL_WEBHOOK_SECRET=oncall-webhook-secret:latest`
+  # ==========================================================================
+
+options:
+  logging: CLOUD_LOGGING_ONLY
